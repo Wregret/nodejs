@@ -99,7 +99,7 @@ app.post('/add', (req, res) => {
             console.log("[ADD]: Add success");
             res.json({
                 "message": CALCULATION_SUCCESS,
-                "result": String(result)
+                "result": result
             })
         } else {
             console.log("[ADD]: Invalid number");
@@ -125,7 +125,7 @@ app.post('/multiply', (req, res) => {
             console.log("[MULTIPLY]: Multiply success");
             res.json({
                 "message": CALCULATION_SUCCESS,
-                "result": String(result)
+                "result": result
             })
         } else {
             console.log("[MULTIPLY]: Invalid number");
@@ -151,7 +151,7 @@ app.post('/divide', (req, res) => {
             console.log("[DIVIDE]: Divide success");
             res.json({
                 "message": CALCULATION_SUCCESS,
-                "result": String(result)
+                "result": result
             })
         } else {
             console.log("[DIVIDE]: Invalid number");
