@@ -54,13 +54,13 @@ app.post('/login', (req, res) => {
                 req.session.username = username;
                 firstname = result[0].firstname;
                 console.log("[LOG IN]: Log in success, username: " + username);
-                res.json({
+                return res.json({
                     "message": LOGIN_SUCCESS + firstname
                 });
             })
         } else {
             console.log("[LOG IN]: Log in fail. Cannot match username: " + username);
-            res.json({
+            return res.json({
                 "message": LOGIN_FAIL
             });
         }
@@ -77,14 +77,14 @@ app.post('/logout', (req, res) => {
                 })
             } else {
                 console.log("[LOG OUT]: Log out success")
-                res.json({
+                return res.json({
                     "message": LOGOUT_SUCCESS
                 })
             }
         });
     } else {
         console.log("[LOG OUT]: Log out fail. User hasn't logged in");
-        res.json({
+        return res.json({
             "message": LOGOUT_FAIL
         })
     }
@@ -97,19 +97,19 @@ app.post('/add', (req, res) => {
         var result = parseFloat(data.num1) + parseFloat(data.num2);
         if (isFinite(result)) {
             console.log("[ADD]: Add success");
-            res.json({
+            return res.json({
                 "message": CALCULATION_SUCCESS,
                 "result": result
             })
         } else {
             console.log("[ADD]: Invalid number");
-            res.json({
+            return res.json({
                 "message": INVALID_NUMBER
             })
         }
     } else {
         console.log("[ADD]: User doesn't log in");
-        res.json({
+        return res.json({
             "message": INVALID_ACCESS
         })
     }
@@ -123,19 +123,19 @@ app.post('/multiply', (req, res) => {
         var result = parseFloat(data.num1) * parseFloat(data.num2);
         if (isFinite(result)) {
             console.log("[MULTIPLY]: Multiply success");
-            res.json({
+            return res.json({
                 "message": CALCULATION_SUCCESS,
                 "result": result
             })
         } else {
             console.log("[MULTIPLY]: Invalid number");
-            res.json({
+            return res.json({
                 "message": INVALID_NUMBER
             })
         }
     } else {
         console.log("[ADD]: User doesn't log in");
-        res.json({
+        return res.json({
             "message": INVALID_ACCESS
         })
     }
@@ -149,19 +149,19 @@ app.post('/divide', (req, res) => {
         var result = parseFloat(data.num1) / parseFloat(data.num2);
         if (isFinite(result)) {
             console.log("[DIVIDE]: Divide success");
-            res.json({
+            return res.json({
                 "message": CALCULATION_SUCCESS,
                 "result": result
             })
         } else {
             console.log("[DIVIDE]: Invalid number");
-            res.json({
+            return res.json({
                 "message": INVALID_NUMBER
             })
         }
     } else {
         console.log("[DIVIDE]: User doesn't log in");
-        res.json({
+        return res.json({
             "message": INVALID_ACCESS
         })
     }
