@@ -17,6 +17,10 @@ const ADDPRODUCTS_SUCCESS = " was successfully added to the system"
 const ADDPRODUCTS_FAIL_NOT_LOGIN = "You are not currently logged in"
 const ADDPRODUCTS_FAIL_NOT_ADMIN = "You must be an admin to perform this action"
 const ADDPRODUCTS_FAIL_ILLEGAL_INPUT = "The input you provided is not valid"
+const MODIFYPRODUCT_SUCCESS = " was successfully updated"
+const MODIFYPRODUCT_FAIL_NOT_LOGIN = "You are not currently logged in"
+const MODIFYPRODUCT_FAIL_NOT_ADMIN = "You must be an admin to perform this action"
+const MODIFYPRODUCT_FAIL_ILLEGAL_INPUT = "The input you provided is not valid"
 
 var connection = mysql.createConnection({
     host: 'nodejs.chxymz1ectvr.us-east-1.rds.amazonaws.com',
@@ -38,7 +42,7 @@ app.use(session({
 
 var register = new Map();
 var itembook = new Map();
-var itemgroup = new Set(['Book', 'DVD', 'Music', 'Electronics', 'Home', 'Beauty', 'Toys', 'Clothing', 'Sports', 'Automotive', 'Handmade']);
+//var itemgroup = new Set(['Book', 'DVD', 'Music', 'Electronics', 'Home', 'Beauty', 'Toys', 'Clothing', 'Sports', 'Automotive', 'Handmade']);
 
 function isEmpty(str) {
     if (typeof str == "undefined" || str == null || str == "") {
@@ -291,7 +295,7 @@ app.post('/addProducts', (req, res) => {
         if (!req.body.asin || isEmpty(req.body.asin) || itembook.has(req.body.asin) ||
             !req.body.productName || isEmpty(req.body.productName) ||
             !req.body.productDescription || isEmpty(req.body.productDescription) ||
-            !req.body.group || isEmpty(req.body.group) || !itemgroup.has(req.body.group)) {
+            !req.body.group || isEmpty(req.body.group) /*|| !itemgroup.has(req.body.group)*/) {
             console.log("[Add Products]: Invalid input");
             return res.json({
                 "message": ADDPRODUCTS_FAIL_ILLEGAL_INPUT
@@ -305,12 +309,46 @@ app.post('/addProducts', (req, res) => {
             itembook.set(item.asin, item);
             console.log("[Add Products]: Add product success");
             return res.json({
-                "message" : ADDPRODUCTS_SUCCESS
+                "message": item.productName + ADDPRODUCTS_SUCCESS
             })
         }
     }
 });
 
+app.post('/modifyProduct', (req, res) => {
+    if (req.session.login == false) {
+        console.log("[Modify Product]: User hasn't been logged in");
+        return res.json({
+            "message": MODIFYPRODUCT_FAIL_NOT_LOGIN
+        })
+    } else if (req.session.admin == false) {
+        console.log("[Modify Product]: User is not admin");
+        return res.json({
+            "message": MODIFYPRODUCT_FAIL_NOT_ADMIN
+        })
+    } else {
+        if (!req.body.asin || isEmpty(req.body.asin) || !itembook.has(req.body.asin) ||
+            !req.body.productName || isEmpty(req.body.productName) ||
+            !req.body.productDescription || isEmpty(req.body.productDescription) ||
+            !req.body.group || isEmpty(req.body.group) /*|| !itemgroup.has(req.body.group)*/) {
+            console.log("[Modify Product]: Invalid input");
+            return res.json({
+                "message" : MODIFYPRODUCT_FAIL_ILLEGAL_INPUT
+            })
+        } else {
+            let item = itembook.get(req.body.asin);
+            item.productName = req.body.productName;
+            item.productDescription = req.body.productDescription;
+            item.group = req.body.group;
+            console.log("[Modify Product]: Modify product success");
+            return res.json({
+                "message" : item.productName + MODIFYPRODUCT_SUCCESS
+            })
+        }
+    }
+})
+
+app.post('')
 
 app.listen(port, function (err) {
     if (err) {
