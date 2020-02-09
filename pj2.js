@@ -21,6 +21,11 @@ const MODIFYPRODUCT_SUCCESS = " was successfully updated"
 const MODIFYPRODUCT_FAIL_NOT_LOGIN = "You are not currently logged in"
 const MODIFYPRODUCT_FAIL_NOT_ADMIN = "You must be an admin to perform this action"
 const MODIFYPRODUCT_FAIL_ILLEGAL_INPUT = "The input you provided is not valid"
+const VIEWUSERS_SUCCESS = "The action was successful"
+const VIEWUSERS_FAIL_NO_USERS = "There are no users that match that criteria"
+const VIEWUSERS_FAIL_NOT_LOGIN = "You are not currently logged in"
+const VIEWUSERS_FAIL_NOT_ADMIN = "You must be an admin to perform this action"
+const VIEWPRODUCTS_FAIL = "There are no products that match that criteria"
 
 var connection = mysql.createConnection({
     host: 'nodejs.chxymz1ectvr.us-east-1.rds.amazonaws.com',
@@ -28,6 +33,13 @@ var connection = mysql.createConnection({
     password: 'codelyoko',
     database: 'nodejs'
 });
+
+// var connection = mysql.createConnection({
+//     host: '127.0.0.1',
+//     user: 'root',
+//     password: 'codelyoko',
+//     database: 'nodejs'
+// });
 
 app.use(express.json());
 app.use(session({
@@ -45,7 +57,7 @@ var itembook = new Map();
 //var itemgroup = new Set(['Book', 'DVD', 'Music', 'Electronics', 'Home', 'Beauty', 'Toys', 'Clothing', 'Sports', 'Automotive', 'Handmade']);
 
 function isEmpty(str) {
-    if (typeof str == "undefined" || str == null || str == "") {
+    if (typeof str == undefined || str == null || str == "") {
         return true;
     } else {
         return false;
@@ -109,8 +121,8 @@ app.post('/login', (req, res) => {
                 "message": LOGIN_SUCCESS + register.get(username).firstname
             });
         });
-    } else if (req.body.username == jadmin) {
-        connection.query('SELECT * FROM account WHERE username = ? AND password = ?',
+    } else if (req.body.username == "jadmin") {
+        connection.query('SELECT * FROM admin_account WHERE username = ? AND password = ?',
             [req.body.username, req.body.password], function (error, result, fields) {
                 if (error) {
                     console.log(error);
@@ -348,7 +360,107 @@ app.post('/modifyProduct', (req, res) => {
     }
 })
 
-app.post('')
+app.post('/viewUsers', (req, res) => {
+    if (req.session.login == false) {
+        console.log("[View Users]: User hasn't been logged in");
+        return res.json({
+            "message" : VIEWUSERS_FAIL_NOT_LOGIN
+        });
+    } else if (req.session.admin == false) {
+        console.log("[View Users]: User is not admin");
+        return res.json({
+            "message" : VIEWUSERS_FAIL_NOT_ADMIN
+        })
+    } else if (register.size == 0) {
+        console.log("[View Users]: No registered users");
+        return res.json({
+            "message" : VIEWUSERS_FAIL_NO_USERS
+        })
+    } else {
+        let result = [];
+        if (req.body.fname && !isEmpty(req.body.fname) && req.body.lname && !isEmpty(req.body.lname)) {
+            register.forEach((username, user, register) => {
+                if (user.firstname.search(req.body.fname) != -1 && user.lastname.search(req.body.lname) != -1) {
+                    result.push({fname:user.firstname, lname:user.lastname, userId:user.username})
+                }
+            })
+        } else if (req.body.fname && !isEmpty(req.body.fname)) {
+            register.forEach((username, user, register) => {
+                if (user.firstname.search(req.body.fname) != -1) {
+                    result.push({fname:user.firstname, lname:user.lastname, userId:user.username})
+                }
+            })
+        } else if (req.body.lname && !isEmpty(req.body.lname)) {
+            register.forEach((username, user, register) => {
+                if (user.lastname.search(req.body.lname) != -1) {
+                    result.push({fname:user.firstname, lname:user.lastname, userId:user.username})
+                }
+            })
+        } else {
+            register.forEach((username, user, register) => {
+                result.push({fname:user.firstname, lname:user.lastname, userId:user.username})
+            })
+        }
+        if (result.length == 0) {
+            console.log("[View Users]: No matching results found");
+            return res.json({
+                "message" : VIEWUSERS_FAIL_NO_USERS
+            })
+        } else {
+            console.log("[View Users]: Found users: " + result.length);
+            return res.json({
+                "message" : VIEWUSERS_SUCCESS,
+                "user" : result
+            })
+        }
+    }
+});
+
+app.post('/viewProducts', (req, res) => {
+    let resultSet = new Set();
+    if (req.body.asin && !isEmpty(req.body.asin)) {
+        itembook.forEach((productName, product, itembook) => {
+            if (product.asin == req.body.asin) {
+                resultSet.add(product);
+            }
+        })
+    }
+    if (req.body.keyword && !isEmpty(req.body.keyword)) {
+        itembook.forEach((productName, product, itembook) => {
+            if (product.productName.search(req.body.keyword) != -1 || product.productDescription.search(req.body.keyword) != -1) {
+                resultSet.add(product)
+            }
+        })
+    }
+    if (resultSet.length == 0) {
+        itembook.forEach((productName, product, itembook) => {
+            resultSet.add(product);
+        })
+    }
+    let result = [];
+    if (req.body.group && !isEmpty(req.body.group)) {
+        for (let item of resultSet) {
+            if (item.group == req.body.group) {
+                result.push({asin:item.asin, productName:item.productName});
+            }
+        }
+    } else {
+        for (let item of resultSet) {
+            result.push({asin:item.asin, productName:item.productName})
+        }
+    }
+    if (result.length == 0) {
+        console.log("[View Products]: Itembook is empty");
+        return res.json({
+            "message" : VIEWPRODUCTS_FAIL
+        })
+    } else {
+        console.log("[View Products]: Found products: " + result.length);
+        return res.json({
+            "product" : result
+        })
+    }
+})
 
 app.listen(port, function (err) {
     if (err) {
