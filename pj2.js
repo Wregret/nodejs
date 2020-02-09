@@ -52,8 +52,8 @@ app.use(session({
     }
 }));
 
-var register = new Map();
-var itembook = new Map();
+const register = new Map();
+const itembook = new Map();
 //var itemgroup = new Set(['Book', 'DVD', 'Music', 'Electronics', 'Home', 'Beauty', 'Toys', 'Clothing', 'Sports', 'Automotive', 'Handmade']);
 
 function isEmpty(str) {
@@ -163,7 +163,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-    if (req.session.login == true) {
+    if (req.session.login) {
         let username = req.session.username;
         req.session.destroy(function (err) {
             if (err) {
@@ -186,7 +186,7 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/updateInfo', (req, res) => {
-    if (res.session.login == true && register.has(res.session.username)) {
+    if (res.session.login && register.has(res.session.username)) {
         let username = res.session.username;
         let user = register.get(username);
         if (req.body.fname) {
@@ -293,12 +293,12 @@ app.post('/updateInfo', (req, res) => {
 });
 
 app.post('/addProducts', (req, res) => {
-    if (req.session.login == false) {
+    if (!req.session.login) {
         console.log("[Add Products]: User hasn't been logged in");
         return res.json({
             "message": ADDPRODUCTS_FAIL_NOT_LOGIN
         })
-    } else if (req.session.admin == false) {
+    } else if (!req.session.admin) {
         console.log("[Add Products]: User is not admin");
         return res.json({
             "message": ADDPRODUCTS_FAIL_NOT_ADMIN
@@ -321,19 +321,19 @@ app.post('/addProducts', (req, res) => {
             itembook.set(item.asin, item);
             console.log("[Add Products]: Add product success");
             return res.json({
-                "message": item.productName + ADDPRODUCTS_SUCCESS
+                "message": item.productName + ADDPRODUCTS_SUCCESS,
             })
         }
     }
 });
 
 app.post('/modifyProduct', (req, res) => {
-    if (req.session.login == false) {
+    if (!req.session.login) {
         console.log("[Modify Product]: User hasn't been logged in");
         return res.json({
             "message": MODIFYPRODUCT_FAIL_NOT_LOGIN
         })
-    } else if (req.session.admin == false) {
+    } else if (!req.session.admin) {
         console.log("[Modify Product]: User is not admin");
         return res.json({
             "message": MODIFYPRODUCT_FAIL_NOT_ADMIN
@@ -361,12 +361,12 @@ app.post('/modifyProduct', (req, res) => {
 })
 
 app.post('/viewUsers', (req, res) => {
-    if (req.session.login == false) {
+    if (!req.session.login) {
         console.log("[View Users]: User hasn't been logged in");
         return res.json({
             "message" : VIEWUSERS_FAIL_NOT_LOGIN
         });
-    } else if (req.session.admin == false) {
+    } else if (!req.session.admin) {
         console.log("[View Users]: User is not admin");
         return res.json({
             "message" : VIEWUSERS_FAIL_NOT_ADMIN
@@ -379,25 +379,25 @@ app.post('/viewUsers', (req, res) => {
     } else {
         let result = [];
         if (req.body.fname && !isEmpty(req.body.fname) && req.body.lname && !isEmpty(req.body.lname)) {
-            register.forEach((username, user, register) => {
+            register.forEach((user, username, register) => {
                 if (user.firstname.search(req.body.fname) != -1 && user.lastname.search(req.body.lname) != -1) {
                     result.push({fname:user.firstname, lname:user.lastname, userId:user.username})
                 }
             })
         } else if (req.body.fname && !isEmpty(req.body.fname)) {
-            register.forEach((username, user, register) => {
+            register.forEach((user, username, register) => {
                 if (user.firstname.search(req.body.fname) != -1) {
                     result.push({fname:user.firstname, lname:user.lastname, userId:user.username})
                 }
             })
         } else if (req.body.lname && !isEmpty(req.body.lname)) {
-            register.forEach((username, user, register) => {
+            register.forEach((user, username, register) => {
                 if (user.lastname.search(req.body.lname) != -1) {
                     result.push({fname:user.firstname, lname:user.lastname, userId:user.username})
                 }
             })
         } else {
-            register.forEach((username, user, register) => {
+            register.forEach((user, username, register) => {
                 result.push({fname:user.firstname, lname:user.lastname, userId:user.username})
             })
         }
@@ -419,21 +419,21 @@ app.post('/viewUsers', (req, res) => {
 app.post('/viewProducts', (req, res) => {
     let resultSet = new Set();
     if (req.body.asin && !isEmpty(req.body.asin)) {
-        itembook.forEach((productName, product, itembook) => {
+        itembook.forEach((product, asin, itembook) => {
             if (product.asin == req.body.asin) {
                 resultSet.add(product);
             }
         })
     }
     if (req.body.keyword && !isEmpty(req.body.keyword)) {
-        itembook.forEach((productName, product, itembook) => {
+        itembook.forEach((product, asin, itembook) => {
             if (product.productName.search(req.body.keyword) != -1 || product.productDescription.search(req.body.keyword) != -1) {
                 resultSet.add(product)
             }
         })
     }
     if (resultSet.length == 0) {
-        itembook.forEach((productName, product, itembook) => {
+        itembook.forEach((product, asin, itembook) => {
             resultSet.add(product);
         })
     }
@@ -461,6 +461,12 @@ app.post('/viewProducts', (req, res) => {
         })
     }
 })
+
+// app.post('/itembook', (req, res) => {
+//     return res.json({
+//         "itembook" : itembook.size
+//     })
+// })
 
 app.listen(port, function (err) {
     if (err) {
