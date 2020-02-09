@@ -462,12 +462,6 @@ app.post('/viewProducts', (req, res) => {
     }
 })
 
-// app.post('/itembook', (req, res) => {
-//     return res.json({
-//         "itembook" : itembook.size
-//     })
-// })
-
 app.listen(port, function (err) {
     if (err) {
         console.log("[PJ2]: App start failed. Port: " + port);
