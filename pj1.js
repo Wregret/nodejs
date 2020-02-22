@@ -171,8 +171,8 @@ app.post('/divide', (req, res) => {
 
 app.listen(port, function(err) {
     if (err) {
-        console.log("[APP]: App start failed. Port: " + port);
+        console.log("[PJ1]: App start failed. Port: " + port);
     } else {
-        console.log("[APP]: App start success. Port: " + port);
+        console.log("[PJ1]: App start success. Port: " + port);
     }
 });
