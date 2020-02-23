@@ -475,7 +475,7 @@ app.post('/viewProducts', (req, res) => {
     if (req.body.asin && !isEmpty(req.body.asin)) asinKeywords = req.body.asin
     if (req.body.keyword && !isEmpty(req.body.keyword)) nameAndDescriptionKeyword = "%" + req.body.keyword + "%"
     if (req.body.group && !isEmpty(req.body.group)) groupKeyword = "%" + req.body.group + "%"
-    connectionPool.query(sql.getProductByKeywords, [nameAndDescriptionKeyword, groupKeyword, nameAndDescriptionKeyword, asinKeyword], function (err, result) {
+    connectionPool.query(sql.getProductByKeywords, [nameAndDescriptionKeyword, nameAndDescriptionKeyword, groupKeyword, asinKeyword], function (err, result) {
         if (err) {
             console.log(err)
             console.log("[View Products]: DB query failed");

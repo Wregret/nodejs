@@ -5,7 +5,7 @@ var sql = {
     // products
     insertProduct: 'INSERT INTO ' + PRODUCTS_TABLE + ' (Name, ProductGroup, Description, ASIN) VALUES (?, ?, ?, ?)',
     updateProduct: 'UPDATE ' + PRODUCTS_TABLE + ' SET Name = ?, ProductGroup = ?, Description = ? WHERE ASIN = ?',
-    getProductByKeywords: 'SELECT ASIN AS asin, Name as productName FROM ' + PRODUCTS_TABLE + ' WHERE (Name LIKE ? OR ProductGroup LIKE ?) AND Description LIKE ? AND ASIN LIKE ?',
+    getProductByKeywords: 'SELECT ASIN AS asin, Name as productName FROM ' + PRODUCTS_TABLE + ' WHERE (Name LIKE ? OR Description LIKE ?) AND ProductGroup LIKE ? AND ASIN LIKE ?',
 
 
     // users
