@@ -1,4 +1,4 @@
-mudule.exports = {
+module.exports = {
     mysql_production: {
         host: 'nodejs.chxymz1ectvr.us-east-1.rds.amazonaws.com',
         user: 'admin',
