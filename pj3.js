@@ -101,7 +101,7 @@ app.post('/registerUser', (req, res) => {
                             "message": REGISTER_FAIL
                         });
                     }
-                    console.log("[Register User]: Register success for " + user.username);
+                    console.log("[Register User]: Register success for " + req.body.username);
                     return res.json({
                         "message": req.body.fname + REGISTER_SUCCESS
                     });
