@@ -15,7 +15,7 @@ var sql = {
     authUser: 'SELECT * FROM ' + USER_TABLE + ' WHERE Username = ? AND Password = ?',
     getUserByUsername: 'SELECT * FROM ' + USER_TABLE + ' WHERE Username = ?',
     updateUser: 'UPDATE ' + USER_TABLE + ' SET Firstname = ?, Lastname = ?, Address = ?, City = ?, State = ?, Zip = ?, Email = ?, Username = ?, Password = ? WHERE Username = ?',
-    getUserByKeywords: 'SELECT Firstname AS fname, Lastname AS lname, Username AS userId FROM ' + USER_TABLE + ' WHERE Firstname LIKE ? AND Lastname LIKE ?',
+    getUserByKeywords: 'SELECT Firstname AS fname, Lastname AS lname, Username AS userId FROM ' + USER_TABLE + ' WHERE Firstname LIKE ? AND Lastname LIKE ?'
 }
 
 module.exports = sql
