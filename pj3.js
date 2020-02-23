@@ -33,6 +33,13 @@ const VIEWUSERS_FAIL_NO_USERS = "There are no users that match that criteria"
 const VIEWUSERS_FAIL_NOT_LOGIN = "You are not currently logged in"
 const VIEWUSERS_FAIL_NOT_ADMIN = "You must be an admin to perform this action"
 const VIEWPRODUCTS_FAIL = "There are no products that match that criteria"
+const BUY_SUCCESS = "The action was successful"
+const BUY_NOT_LOGIN = "You are not currently logged in"
+const BUY_NO_PRODUCTS = "There are no products that match that criteria"
+const PRODUCTS_PURCHASED_SUCCESS = "The action was successful"
+const PRODUCTS_PURCHASED_NO_USERS = "There are no users that match that criteria"
+const PRODUCTS_PURCHASED_NOT_LOGIN = "You are not currently logged in"
+const PRODUCTS_PURCHASED_NOT_ADMIN = "You must be an admin to perform this action"
 
 var connectionPool = mysql.createPool(dbconfig.mysql_test);
 
@@ -440,8 +447,8 @@ app.post('/viewUsers', (req, res) => {
             "message": VIEWUSERS_FAIL_NOT_ADMIN
         })
     } else {
-        firstnameKeyword = "%"
-        lastnameKeyword = "%"
+        let firstnameKeyword = "%"
+        let lastnameKeyword = "%"
         if (req.body.fname && !isEmpty(req.body.fname)) firstnameKeyword = "%" + req.body.fname + "%"
         if (req.body.lname && !isEmpty(req.body.lname)) lastnameKeyword = "%" + req.body.lname + "%"
         connectionPool.query(sql.getUserByKeywords, [firstnameKeyword, lastnameKeyword], function (err, result) {
@@ -469,9 +476,9 @@ app.post('/viewUsers', (req, res) => {
 });
 
 app.post('/viewProducts', (req, res) => {
-    asinKeyword = "%"
-    nameAndDescriptionKeyword = "%"
-    groupKeyword = "%"
+    let asinKeyword = "%"
+    let nameAndDescriptionKeyword = "%"
+    let groupKeyword = "%"
     if (req.body.asin && !isEmpty(req.body.asin)) asinKeywords = req.body.asin
     if (req.body.keyword && !isEmpty(req.body.keyword)) nameAndDescriptionKeyword = "%" + req.body.keyword + "%"
     if (req.body.group && !isEmpty(req.body.group)) groupKeyword = "%" + req.body.group + "%"
@@ -495,7 +502,133 @@ app.post('/viewProducts', (req, res) => {
             })
         }
     })
-})
+});
+
+app.post('/buyProducts', (req, res) => {
+    if (!req.session.login || req.session.admin || !req.session.username) {
+        console.log("[Buy Products]: User hasn't been logged in: ");
+        return res.json({
+            "message": BUY_NOT_LOGIN
+        });
+    } else if (!req.body.products || req.body.products.length == 0) {
+        console.log("[Buy Products]: Empty buy list")
+        return res.json({
+            "message": BUY_NO_PRODUCTS
+        });
+    } else {
+        let whereClause = ""
+        let idx = 0
+        for (; idx < req.body.products.length - 1; idx++) {
+            whereClause += 'ASIN = ' + req.body.products[idx].asin + ' OR '
+        }
+        whereClause += 'ASIN = ' + req.body.products[idx].asin
+        let queryStatement = sql.checkProductsExist + whereClause
+        connectionPool.query(queryStatement, function (err, result) {
+            if (err) {
+                console.log(err)
+                console.log("[Buy Products]: DB query failed")
+                return res.json({
+                    "message": BUY_NO_PRODUCTS
+                });
+            }
+            if (result[0].count != req.body.products.length) {
+                console.log("[Buy Products]: Cannot find some product in DB.")
+                return res.json({
+                    "message": BUY_NO_PRODUCTS
+                });
+            } else {
+                connectionPool.query(sql.insertOrders, [req.session.username], function (err, result) {
+                    if (err) {
+                        console.log(err)
+                        console.log("[Buy Products]: Insert into orders failed.")
+                        return res.json({
+                            "message": BUY_NO_PRODUCTS
+                        });
+                    }
+                    let orderId = result.insertId
+                    let insertArray = []
+                    for (let i = 0; i < req.body.products.length; i++) {
+                        let insertItem = []
+                        insertItem.push(orderId)
+                        insertItem.push(req.body.products[i].asin)
+                        insertArray.push(insertItem)
+                    }
+                    connectionPool.query(sql.insertReceipts, [insertArray], function (err, result) {
+                        if (err) {
+                            console.log(err)
+                            console.log("[Buy Products]: Insert into receipts failed.")
+                            return res.json({
+                                "message": BUY_NO_PRODUCTS
+                            });
+                        }
+                        let historyArray = []
+                        for (let i = 0; i < req.body.products.length; i++) {
+                            let insertItem = []
+                            insertItem.push(req.session.username)
+                            insertItem.push(req.body.products[i].asin)
+                            insertItem.push(1)
+                            historyArray.push(insertItem)
+                        }
+                        connectionPool.query(sql.insertHistory, [historyArray], function (err, result) {
+                            if (err) {
+                                console.log(err)
+                                console.log("Buy Products]: Insert into history failed.")
+                                return res.json({
+                                    "message": BUY_NO_PRODUCTS
+                                });
+                            }
+                            console.log("[Buy Products]: Buying success. Order number: " + orderId)
+                            return res.json({
+                                "message": BUY_SUCCESS
+                            });
+                        })
+                    })
+                })
+            }
+        })
+    }
+});
+
+app.post('productsPurchased', (req, res) => {
+    if (!req.session.login) {
+        console.log("[Products Purchased]: User hasn't been logged in");
+        return res.json({
+            "message": PRODUCTS_PURCHASED_NOT_LOGIN
+        });
+    } else if (!req.session.admin) {
+        console.log("[Products Purchased]: User is not admin");
+        return res.json({
+            "message": PRODUCTS_PURCHASED_NOT_ADMIN
+        })
+    } else if (!req.body.username) {
+        console.log("[Products Purchased]: No input user in request body");
+        return res.json({
+            "message": PRODUCTS_PURCHASED_NO_USERS
+        })
+    } else {
+        connectionPool.query(sql.getHistoryByUser, [req.body.username], function(err, result) {
+            if (err) {
+                console.log(err)
+                console.log("[Products Purchased]: DB query failed.")
+                return res.json({
+                    "message": PRODUCTS_PURCHASED_NO_USERS
+                })
+            }
+            if (result.length == 0) {
+                console.log("[Products Purchased]: No user found")
+                return res.json({
+                    "message": PRODUCTS_PURCHASED_NO_USERS
+                })
+            } else {
+                console.log("[Products Purchased]: Found user with order history: " + req.body.username)
+                return res.json({
+                    "message": PRODUCTS_PURCHASED_SUCCESS
+                })
+            }
+        })
+    }
+});
+
 
 app.listen(port, function (err) {
     if (err) {
