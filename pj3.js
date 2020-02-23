@@ -137,40 +137,41 @@ app.post('/login', (req, res) => {
                 "message": LOGIN_FAIL
             })
         }
-    }
-    // authenticate normal user
-    connectionPool.query(sql.authUser, [username, password], function (err, result) {
-        if (err) {
-            console.log(err)
-            console.log("[Log In]: DB query failed.");
-            return res.json({
-                "message": REGISTER_FAIL
-            });
-        }
-        if (result.length != 1) {
-            console.log("[Log In]: Log in failed for " + username);
-            return res.json({
-                "message": LOGIN_FAIL
-            })
-        } else {
-            req.session.regenerate(function (err) {
-                if (err) {
-                    console.log(err)
-                    console.log("[Log In]: Session generation failed for " + username);
-                    return res.json({
-                        "message": LOGIN_FAIL
-                    })
-                }
-                req.session.login = true;
-                req.session.username = username;
-                req.session.admin = false;
-                console.log("[Log In]: Log in success for " + username);
+    } else {
+        // authenticate normal user
+        connectionPool.query(sql.authUser, [username, password], function (err, result) {
+            if (err) {
+                console.log(err)
+                console.log("[Log In]: DB query failed.");
                 return res.json({
-                    "message": LOGIN_SUCCESS + result[0].Firstname
+                    "message": REGISTER_FAIL
                 });
-            })
-        }
-    })
+            }
+            if (result.length != 1) {
+                console.log("[Log In]: Log in failed for " + username);
+                return res.json({
+                    "message": LOGIN_FAIL
+                })
+            } else {
+                req.session.regenerate(function (err) {
+                    if (err) {
+                        console.log(err)
+                        console.log("[Log In]: Session generation failed for " + username);
+                        return res.json({
+                            "message": LOGIN_FAIL
+                        })
+                    }
+                    req.session.login = true;
+                    req.session.username = username;
+                    req.session.admin = false;
+                    console.log("[Log In]: Log in success for " + username);
+                    return res.json({
+                        "message": LOGIN_SUCCESS + result[0].Firstname
+                    });
+                })
+            }
+        })
+    }
 });
 
 app.post('/logout', (req, res) => {
