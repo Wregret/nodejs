@@ -196,105 +196,139 @@ app.post('/logout', (req, res) => {
 app.post('/updateInfo', (req, res) => {
     // check normal user
     if (res.session.login && !res.session.admin) {
-        connectionPool.query(getUser)
-    }
-    if (res.session.login && register.has(res.session.username)) {
-        let username = res.session.username;
-        let user = register.get(username);
-        if (req.body.fname) {
-            if (!isEmpty(req.body.fname)) {
-                user.firstname = req.body.fname;
-            } else {
-                console.log("[Update Info]: Invalid fname input");
+        connectionPool.query(sql.getUserByUsername, [res.session.username], function (err, result) {
+            if (err) {
+                console.log("[Update Info]: DB connection failed.");
                 return res.json({
                     "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
                 })
             }
-        }
-        if (req.body.lname) {
-            if (!isEmpty(req.body.lname)) {
-                user.lastname = req.body.fname;
-            } else {
-                console.log("[Update Info]: Invalid lname input");
+            if (result.length != 1) {
+                console.log("[Update Info]: Found multiple users");
                 return res.json({
                     "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
                 })
             }
-        }
-        if (req.body.address) {
-            if (!isEmpty(req.body.address)) {
-                user.address = req.body.address;
-            } else {
-                console.log("[Update Info]: Invalid address input");
-                return res.json({
-                    "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
-                })
+            let user = {}
+            user.firstname = result[0].Firstname;
+            user.lastname = result[0].lastname;
+            user.address = result[0].Address;
+            user.city = result[0].City;
+            user.state = result[0].State;
+            user.zip = result[0].Zip;
+            user.email = result[0].Email;
+            user.username = result[0].Username;
+            user.password = result[0].Password;
+            if (req.body.fname) {
+                if (!isEmpty(req.body.fname)) {
+                    user.firstname = req.body.fname;
+                } else {
+                    console.log("[Update Info]: Invalid fname input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
             }
-        }
-        if (req.body.city) {
-            if (!isEmpty(req.body.city)) {
-                user.city = req.body.city;
-            } else {
-                console.log("[Update Info]: Invalid city input");
-                return res.json({
-                    "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
-                })
+            if (req.body.lname) {
+                if (!isEmpty(req.body.lname)) {
+                    user.lastname = req.body.fname;
+                } else {
+                    console.log("[Update Info]: Invalid lname input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
             }
-        }
-        if (req.body.state) {
-            if (!isEmpty(req.body.state)) {
-                user.state = req.body.state;
-            } else {
-                console.log("[Update Info]: Invalid state input");
-                return res.json({
-                    "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
-                })
+            if (req.body.address) {
+                if (!isEmpty(req.body.address)) {
+                    user.address = req.body.address;
+                } else {
+                    console.log("[Update Info]: Invalid address input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
             }
-        }
-        if (req.body.zip) {
-            if (!isEmpty(req.body.zip)) {
-                user.zip = req.body.zip;
-            } else {
-                console.log("[Update Info]: Invalid zip input");
-                return res.json({
-                    "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
-                })
+            if (req.body.city) {
+                if (!isEmpty(req.body.city)) {
+                    user.city = req.body.city;
+                } else {
+                    console.log("[Update Info]: Invalid city input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
             }
-        }
-        if (req.body.email) {
-            if (!isEmpty(req.body.email)) {
-                user.email = req.body.email;
-            } else {
-                console.log("[Update Info]: Invalid email input");
-                return res.json({
-                    "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
-                })
+            if (req.body.state) {
+                if (!isEmpty(req.body.state)) {
+                    user.state = req.body.state;
+                } else {
+                    console.log("[Update Info]: Invalid state input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
             }
-        }
-        if (req.body.username) {
-            if (!isEmpty(req.body.username) || !register.has(req.body.username)) {
-                user.username = req.body.username;
-                session.username = req.body.username
-            } else {
-                console.log("[Update Info]: Invalid username input");
-                return res.json({
-                    "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
-                })
+            if (req.body.zip) {
+                if (!isEmpty(req.body.zip)) {
+                    user.zip = req.body.zip;
+                } else {
+                    console.log("[Update Info]: Invalid zip input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
             }
-        }
-        if (req.body.password) {
-            if (!isEmpty(req.body.password)) {
-                user.password = req.body.password;
-            } else {
-                console.log("[Update Info]: Invalid password input");
-                return res.json({
-                    "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
-                })
+            if (req.body.email) {
+                if (!isEmpty(req.body.email)) {
+                    user.email = req.body.email;
+                } else {
+                    console.log("[Update Info]: Invalid email input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
             }
-        }
-        console.log("[Update Info]: Update success");
-        return res.json({
-            "message": user.firstname + UPDATEINFO_SUCCESS
+            if (req.body.username) {
+                if (!isEmpty(req.body.username)) {
+                    user.username = req.body.username;
+                } else {
+                    console.log("[Update Info]: Invalid username input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
+            }
+            if (req.body.password) {
+                if (!isEmpty(req.body.password)) {
+                    user.password = req.body.password;
+                } else {
+                    console.log("[Update Info]: Invalid password input");
+                    return res.json({
+                        "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                    })
+                }
+            }
+            connectionPool.query(sql.updateUser, [user.firstname, user.lastname, user.address, user.city, user.state, user.zip, user.email, user.username, user.password],
+                function (err, result) {
+                    if (err) {
+                        console.log("[Update Info]: DB update failed");
+                        return res.json({
+                            "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                        })
+                    }
+                    if (result.affectedRows == 1) {
+                        console.log("[Update Info]: Update success");
+                        return res.json({
+                            "message": user.firstname + UPDATEINFO_SUCCESS
+                        })
+                    } else {
+                        console.log("[Update Info]: DB update multiple user");
+                        return res.json({
+                            "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
+                        })
+                    }
+                })
         })
     } else {
         console.log("[Update Info]: Update Info fail. User hasn't been logged in");
@@ -316,24 +350,27 @@ app.post('/addProducts', (req, res) => {
             "message": ADDPRODUCTS_FAIL_NOT_ADMIN
         })
     } else {
-        if (!req.body.asin || isEmpty(req.body.asin) || itembook.has(req.body.asin) ||
+        if (!req.body.asin || isEmpty(req.body.asin) ||
             !req.body.productName || isEmpty(req.body.productName) ||
             !req.body.productDescription || isEmpty(req.body.productDescription) ||
-            !req.body.group || isEmpty(req.body.group) /*|| !itemgroup.has(req.body.group)*/) {
+            !req.body.group || isEmpty(req.body.group)) {
             console.log("[Add Products]: Invalid input");
             return res.json({
                 "message": ADDPRODUCTS_FAIL_ILLEGAL_INPUT
             })
         } else {
-            let item = {}
-            item.asin = req.body.asin;
-            item.productName = req.body.productName;
-            item.productDescription = req.body.productDescription;
-            item.group = req.body.group;
-            itembook.set(item.asin, item);
-            console.log("[Add Products]: Add product success");
-            return res.json({
-                "message": item.productName + ADDPRODUCTS_SUCCESS,
+            connectionPool.query(sql.insertProduct, [req.body.productName, req.body.group, req.body.productDescription, req.body.asin], function (err, result) {
+                if (err) {
+                    console.log("[Add Products]: DB insert failed.");
+                    return res.json({
+                        "message": ADDPRODUCTS_FAIL_ILLEGAL_INPUT
+                    })
+                } else {
+                    console.log("[Add Products]: Add product success");
+                    return res.json({
+                        "message": req.body.productName + ADDPRODUCTS_SUCCESS,
+                    })
+                }
             })
         }
     }
@@ -351,22 +388,33 @@ app.post('/modifyProduct', (req, res) => {
             "message": MODIFYPRODUCT_FAIL_NOT_ADMIN
         })
     } else {
-        if (!req.body.asin || isEmpty(req.body.asin) || !itembook.has(req.body.asin) ||
+        if (!req.body.asin || isEmpty(req.body.asin) ||
             !req.body.productName || isEmpty(req.body.productName) ||
             !req.body.productDescription || isEmpty(req.body.productDescription) ||
-            !req.body.group || isEmpty(req.body.group) /*|| !itemgroup.has(req.body.group)*/) {
+            !req.body.group || isEmpty(req.body.group)) {
             console.log("[Modify Product]: Invalid input");
             return res.json({
                 "message": MODIFYPRODUCT_FAIL_ILLEGAL_INPUT
             })
         } else {
-            let item = itembook.get(req.body.asin);
-            item.productName = req.body.productName;
-            item.productDescription = req.body.productDescription;
-            item.group = req.body.group;
-            console.log("[Modify Product]: Modify product success");
-            return res.json({
-                "message": item.productName + MODIFYPRODUCT_SUCCESS
+            connectionPool.query(sql.updateProduct, [req.body.productName, req.body.group, req.body.productDescription, req.body.asin], function (err, result) {
+                if (err) {
+                    console.log("[Modify Product]: DB update failed");
+                    return res.json({
+                        "message": MODIFYPRODUCT_FAIL_ILLEGAL_INPUT
+                    })
+                }
+                if (result.affectedRows == 1) {
+                    console.log("[Modify Product]: Modify product success");
+                    return res.json({
+                        "message": item.productName + MODIFYPRODUCT_SUCCESS
+                    })
+                } else {
+                    console.log("[Modify Product]: DB update multiple products.");
+                    return res.json({
+                        "message": MODIFYPRODUCT_FAIL_ILLEGAL_INPUT
+                    })
+                }
             })
         }
     }

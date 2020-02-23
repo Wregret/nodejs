@@ -4,9 +4,8 @@ const USER_TABLE = "user"
 var sql = {
     // products
     insertProduct: 'INSERT INTO ' + PRODUCTS_TABLE + ' (Name, ProductGroup, Description, ASIN) VALUES (?, ?, ?, ?)',
-    updateProductName: 'UPDATE ' + PRODUCTS_TABLE + ' SET Name = ? WHERE ASIN = ?',
-    updateProductGroup: 'UPDATE ' + PRODUCTS_TABLE + ' SET ProductGroup = ? WHERE ASIN = ?',
-    updateDescription: 'UPDATE ' + PRODUCTS_TABLE + ' SET Description = ? WHERE ASIN = ?',
+    updateProduct: 'UPDATE ' + PRODUCTS_TABLE + ' SET Name = ?, ProductGroup = ?, Description = ? WHERE ASIN = ?',
+    getProductByKeywords: 'SELECT ASIN AS asin, Name as productName FROM ' + PRODUCTS_TABLE + ' WHERE Name LIKE ? AND ProductGroup LIKE ? AND Description LIKE ? AND ASIN LIKE ?',
 
 
     // users
@@ -16,6 +15,7 @@ var sql = {
     authUser: 'SELECT * FROM ' + USER_TABLE + ' WHERE Username = ? AND Password = ?',
     getUserByUsername: 'SELECT * FROM ' + USER_TABLE + ' WHERE Username = ?',
     updateUser: 'UPDATE ' + USER_TABLE + ' SET Firstname = ?, Lastname = ?, Address = ?, City = ?, State = ?, Zip = ?, Email = ?, Username = ?, Password = ? WHERE Username = ?',
+    getUserByKeywords: 'SELECT Firstname AS fname, Lastname AS lname, Username AS userId FROM ' + USER_TABLE + ' WHERE Firstname LIKE ? AND Lastname LIKE ?',
 }
 
 module.exports = sql
