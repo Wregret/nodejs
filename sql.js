@@ -1,5 +1,5 @@
 const PRODUCTS_TABLE = "products"
-const USER_TABLE = "user"
+const USER_TABLE = "users"
 
 var sql = {
     // products

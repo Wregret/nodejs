@@ -141,8 +141,8 @@ app.post('/login', (req, res) => {
     // authenticate normal user
     connectionPool.query(sql.authUser, [username, password], function (err, result) {
         if (err) {
+            console.log(err)
             console.log("[Log In]: DB query failed.");
-            console.log(err);
             return res.json({
                 "message": REGISTER_FAIL
             });
@@ -155,6 +155,7 @@ app.post('/login', (req, res) => {
         } else {
             req.session.regenerate(function (err) {
                 if (err) {
+                    console.log(err)
                     console.log("[Log In]: Session generation failed for " + username);
                     return res.json({
                         "message": LOGIN_FAIL
@@ -200,6 +201,7 @@ app.post('/updateInfo', (req, res) => {
     if (res.session.login && !res.session.admin) {
         connectionPool.query(sql.getUserByUsername, [res.session.username], function (err, result) {
             if (err) {
+                console.log(err)
                 console.log("[Update Info]: DB connection failed.");
                 return res.json({
                     "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
@@ -314,6 +316,7 @@ app.post('/updateInfo', (req, res) => {
             connectionPool.query(sql.updateUser, [user.firstname, user.lastname, user.address, user.city, user.state, user.zip, user.email, user.username, user.password],
                 function (err, result) {
                     if (err) {
+                        console.log(err)
                         console.log("[Update Info]: DB update failed");
                         return res.json({
                             "message": UPDATEINFO_FAIL_ILLEGAL_INPUT
@@ -363,6 +366,7 @@ app.post('/addProducts', (req, res) => {
         } else {
             connectionPool.query(sql.insertProduct, [req.body.productName, req.body.group, req.body.productDescription, req.body.asin], function (err, result) {
                 if (err) {
+                    console.log(err)
                     console.log("[Add Products]: DB insert failed.");
                     return res.json({
                         "message": ADDPRODUCTS_FAIL_ILLEGAL_INPUT
@@ -401,6 +405,7 @@ app.post('/modifyProduct', (req, res) => {
         } else {
             connectionPool.query(sql.updateProduct, [req.body.productName, req.body.group, req.body.productDescription, req.body.asin], function (err, result) {
                 if (err) {
+                    console.log(err)
                     console.log("[Modify Product]: DB update failed");
                     return res.json({
                         "message": MODIFYPRODUCT_FAIL_ILLEGAL_INPUT
@@ -440,6 +445,7 @@ app.post('/viewUsers', (req, res) => {
         if (req.body.lname && !isEmpty(req.body.lname)) lastnameKeyword = "%" + req.body.lname + "%"
         connectionPool.query(sql.getUserByKeywords, [firstnameKeyword, lastnameKeyword], function (err, result) {
             if (err) {
+                console.log(err)
                 console.log("View Users]: DB query failed.")
                 return res.json({
                     "message": VIEWUSERS_FAIL_NO_USERS
@@ -470,6 +476,7 @@ app.post('/viewProducts', (req, res) => {
     if (req.body.group && !isEmpty(req.body.group)) groupKeyword = "%" + req.body.group + "%"
     connectionPool.query(sql.getProductByKeywords, [nameAndDescriptionKeyword, groupKeyword, nameAndDescriptionKeyword, asinKeyword], function (err, result) {
         if (err) {
+            console.log(err)
             console.log("[View Products]: DB query failed");
             return res.json({
                 "message": VIEWPRODUCTS_FAIL
