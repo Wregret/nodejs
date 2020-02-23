@@ -67,6 +67,7 @@ app.post('/registerUser', (req, res) => {
     connectionPool.query(sql.hasUser, [req.body.username], function (err, result) {
         if (err) {
             console.log("[Register User]: DB query failed.");
+            console.log(err)
             return res.json({
                 "message": REGISTER_FAIL
             });
