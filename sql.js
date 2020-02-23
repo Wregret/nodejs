@@ -1,4 +1,4 @@
-const PRODUCTS_TABLE = "productspj2"
+const PRODUCTS_TABLE = "products"
 const USER_TABLE = "users"
 
 var sql = {
