@@ -407,7 +407,7 @@ app.post('/modifyProduct', (req, res) => {
                 if (result.affectedRows == 1) {
                     console.log("[Modify Product]: Modify product success");
                     return res.json({
-                        "message": item.productName + MODIFYPRODUCT_SUCCESS
+                        "message": req.body.productName + MODIFYPRODUCT_SUCCESS
                     })
                 } else {
                     console.log("[Modify Product]: DB update multiple products.");
@@ -431,95 +431,60 @@ app.post('/viewUsers', (req, res) => {
         return res.json({
             "message": VIEWUSERS_FAIL_NOT_ADMIN
         })
-    } else if (register.size == 0) {
-        console.log("[View Users]: No registered users");
-        return res.json({
-            "message": VIEWUSERS_FAIL_NO_USERS
-        })
     } else {
-        let result = [];
-        if (req.body.fname && !isEmpty(req.body.fname) && req.body.lname && !isEmpty(req.body.lname)) {
-            register.forEach((user, username, register) => {
-                if (user.firstname.search(req.body.fname) != -1 && user.lastname.search(req.body.lname) != -1) {
-                    result.push({ fname: user.firstname, lname: user.lastname, userId: user.username })
-                }
-            })
-        } else if (req.body.fname && !isEmpty(req.body.fname)) {
-            register.forEach((user, username, register) => {
-                if (user.firstname.search(req.body.fname) != -1) {
-                    result.push({ fname: user.firstname, lname: user.lastname, userId: user.username })
-                }
-            })
-        } else if (req.body.lname && !isEmpty(req.body.lname)) {
-            register.forEach((user, username, register) => {
-                if (user.lastname.search(req.body.lname) != -1) {
-                    result.push({ fname: user.firstname, lname: user.lastname, userId: user.username })
-                }
-            })
-        } else {
-            register.forEach((user, username, register) => {
-                result.push({ fname: user.firstname, lname: user.lastname, userId: user.username })
-            })
-        }
-        if (result.length == 0) {
-            console.log("[View Users]: No matching results found");
-            return res.json({
-                "message": VIEWUSERS_FAIL_NO_USERS
-            })
-        } else {
-            console.log("[View Users]: Found users: " + result.length);
-            return res.json({
-                "message": VIEWUSERS_SUCCESS,
-                "user": result
-            })
-        }
+        firstnameKeyword = "%"
+        lastnameKeyword = "%"
+        if (req.body.fname && !isEmpty(req.body.fname)) firstnameKeyword = "%" + req.body.fname + "%"
+        if (req.body.lname && !isEmpty(req.body.lname)) lastnameKeyword = "%" + req.body.lname + "%"
+        connectionPool.query(sql.getUserByKeywords, [firstnameKeyword, lastnameKeyword], function (err, result) {
+            if (err) {
+                console.log("View Users]: DB query failed.")
+                return res.json({
+                    "message": VIEWUSERS_FAIL_NO_USERS
+                })
+            }
+            if (result.length == 0) {
+                console.log("[View Users]: No registered users");
+                return res.json({
+                    "message": VIEWUSERS_FAIL_NO_USERS
+                })
+            } else {
+                console.log("[View Users]: Found users: " + result.length);
+                return res.json({
+                    "message": VIEWUSERS_SUCCESS,
+                    "user": result
+                })
+            }
+        })
     }
 });
 
 app.post('/viewProducts', (req, res) => {
-    let resultSet = new Set();
-    if (req.body.asin && !isEmpty(req.body.asin)) {
-        itembook.forEach((product, asin, itembook) => {
-            if (product.asin == req.body.asin) {
-                resultSet.add(product);
-            }
-        })
-    }
-    if (req.body.keyword && !isEmpty(req.body.keyword)) {
-        itembook.forEach((product, asin, itembook) => {
-            if (product.productName.search(req.body.keyword) != -1 || product.productDescription.search(req.body.keyword) != -1) {
-                resultSet.add(product)
-            }
-        })
-    }
-    if (resultSet.length == 0) {
-        itembook.forEach((product, asin, itembook) => {
-            resultSet.add(product);
-        })
-    }
-    let result = [];
-    if (req.body.group && !isEmpty(req.body.group)) {
-        for (let item of resultSet) {
-            if (item.group == req.body.group) {
-                result.push({ asin: item.asin, productName: item.productName });
-            }
+    asinKeyword = "%"
+    nameAndDescriptionKeyword = "%"
+    groupKeyword = "%"
+    if (req.body.asin && !isEmpty(req.body.asin)) asinKeywords = req.body.asin
+    if (req.body.keyword && !isEmpty(req.body.keyword)) nameAndDescriptionKeyword = "%" + req.body.keyword + "%"
+    if (req.body.group && !isEmpty(req.body.group)) groupKeyword = "%" + req.body.group + "%"
+    connectionPool.query(sql.getProductByKeywords, [nameAndDescriptionKeyword, groupKeyword, nameAndDescriptionKeyword, asinKeyword], function (err, result) {
+        if (err) {
+            console.log("[View Products]: DB query failed");
+            return res.json({
+                "message": VIEWPRODUCTS_FAIL
+            })
         }
-    } else {
-        for (let item of resultSet) {
-            result.push({ asin: item.asin, productName: item.productName })
+        if (result.length == 0) {
+            console.log("[View Products]: No product found.");
+            return res.json({
+                "message": VIEWPRODUCTS_FAIL
+            })
+        } else {
+            console.log("[View Products]: Found products: " + result.length);
+            return res.json({
+                "product": result
+            })
         }
-    }
-    if (result.length == 0) {
-        console.log("[View Products]: Itembook is empty");
-        return res.json({
-            "message": VIEWPRODUCTS_FAIL
-        })
-    } else {
-        console.log("[View Products]: Found products: " + result.length);
-        return res.json({
-            "product": result
-        })
-    }
+    })
 })
 
 app.listen(port, function (err) {
