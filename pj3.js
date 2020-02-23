@@ -141,7 +141,8 @@ app.post('/login', (req, res) => {
     // authenticate normal user
     connectionPool.query(sql.authUser, [username, password], function (err, result) {
         if (err) {
-            console.log("[Register User]: DB query failed.");
+            console.log("[Log In]: DB query failed.");
+            console.log(err);
             return res.json({
                 "message": REGISTER_FAIL
             });
