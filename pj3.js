@@ -551,9 +551,10 @@ app.post('/buyProducts', (req, res) => {
                         let insertItem = []
                         insertItem.push(orderId)
                         insertItem.push(req.body.products[i].asin)
+                        console.log("insertItem: " + insertItem)
                         insertArray.push(insertItem)
                     }
-                    console.log(insertArray)
+                    console.log("insertArray" + insertArray)
                     connectionPool.query(sql.insertReceipts, [insertArray], function (err, result) {
                         if (err) {
                             console.log(err)
