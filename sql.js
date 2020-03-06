@@ -7,7 +7,7 @@ const HISTORY_TABLE = "history"
 var sql = {
     // products
     insertProduct: 'INSERT INTO ' + PRODUCTS_TABLE + ' (Name, ProductGroup, Description, ASIN) VALUES (?, ?, ?, ?)',
-    updateProduct: 'UPDATE ' + PRODUCTS_TABLE + ' SET Name = ?, ProductGroup = ?, Description = ? WHERE ASIN = ?',
+    updateProduct: 'UPDATE ' + PRODUCTS_TABLE + ' SET Name = ?, ProductGroup = ?, Description = ? WHERE ASIN = \'?\'',
     getProductByKeywords: 'SELECT ASIN AS asin, Name as productName FROM ' + PRODUCTS_TABLE + ' WHERE MATCH(Name, Description) against(? IN BOOLEAN MODE) AND ProductGroup LIKE ? AND ASIN LIKE ?',
     checkProductsExist: 'SELECT COUNT(*) AS count FROM ' + PRODUCTS_TABLE + ' WHERE ',
 
