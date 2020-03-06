@@ -519,7 +519,6 @@ app.post('/buyProducts', (req, res) => {
         let whereClause = ""
         let idx = 0
         let pd = req.body.products
-        console.log(req.body)
         for (; idx < req.body.products.length - 1; idx++) {
             whereClause += 'ASIN = \'' + req.body.products[idx].asin + '\' OR '
         }
@@ -549,17 +548,12 @@ app.post('/buyProducts', (req, res) => {
                     }
                     let orderId = result.insertId
                     let insertArray = []
-                    console.log(req.body.products)
                     for (let i = 0; i < req.body.products.length; i++) {
                         let insertItem = []
                         insertItem.push(orderId)
                         insertItem.push(req.body.products[i].asin)
-                        console.log("insertItem: ")
-                        console.log(insertItem)
                         insertArray.push(insertItem)
                     }
-                    console.log("insertArray")
-                    console.log(insertArray)
                     connectionPool.query(sql.insertReceipts, [insertArray], function (err, result) {
                         if (err) {
                             console.log(err)
@@ -617,7 +611,7 @@ app.post('/productsPurchased', (req, res) => {
             "message": PRODUCTS_PURCHASED_NO_USERS
         })
     } else {
-        connectionPool.query(sql.getHistoryByUser, [req.body.username], function(err, result) {
+        connectionPool.query(sql.getReceiptsByUsername, [req.body.username], function(err, result) {
             if (err) {
                 console.log(err)
                 console.log("[Products Purchased]: DB query failed.")
