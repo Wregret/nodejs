@@ -627,7 +627,8 @@ app.post('/productsPurchased', (req, res) => {
             } else {
                 console.log("[Products Purchased]: Found user with order history: " + req.body.username)
                 return res.json({
-                    "message": PRODUCTS_PURCHASED_SUCCESS
+                    "message": PRODUCTS_PURCHASED_SUCCESS,
+                    "products": result
                 })
             }
         })
