@@ -547,6 +547,7 @@ app.post('/buyProducts', (req, res) => {
                     }
                     let orderId = result.insertId
                     let insertArray = []
+                    console.log(req.body.products)
                     for (let i = 0; i < req.body.products.length; i++) {
                         let insertItem = []
                         insertItem.push(orderId)
