@@ -8,7 +8,7 @@ var sql = {
     // products
     insertProduct: 'INSERT INTO ' + PRODUCTS_TABLE + ' (Name, ProductGroup, Description, ASIN) VALUES (?, ?, ?, ?)',
     updateProduct: 'UPDATE ' + PRODUCTS_TABLE + ' SET Name = ?, ProductGroup = ?, Description = ? WHERE ASIN = \'?\'',
-    getProductByKeywords: 'SELECT ASIN AS asin, Name as productName FROM ' + PRODUCTS_TABLE + ' WHERE MATCH(Name, Description) against(? IN BOOLEAN MODE) AND ProductGroup LIKE ? AND ASIN LIKE ?',
+    getProductByKeywords: 'SELECT ASIN AS asin, Name as productName FROM ' + PRODUCTS_TABLE + ' WHERE MATCH(Name, Description) against(? IN BOOLEAN MODE) AND ProductGroup LIKE ? AND ASIN LIKE \'?\'',
     checkProductsExist: 'SELECT COUNT(*) AS count FROM ' + PRODUCTS_TABLE + ' WHERE ',
 
 
@@ -24,7 +24,7 @@ var sql = {
     // orders and receipts
     insertOrders: 'INSERT INTO ' + ORDER_TABLE + ' (Username) VALUES (?)',
     insertReceipts: 'INSERT INTO ' + RECEIPT_TABLE + ' (OrderId, ASIN) VALUES ?',
-    getReceiptsByUsername: 'SELECT * ',
+    getReceiptsByUsername: 'SELECT Name AS productName, count(*) AS quantity FROM products, orders, receipts, WHERE orders.Username = ? AND orders.OrderId = receipts.OrderId AND receipts.ASIN = products.ASIN GROUP BY receipts.ASIN',
 
     // history
     insertHistory: 'INSERT INTO ' + HISTORY_TABLE + ' (Username, ASIN, Quantity) VALUES (?,?,?) ON DUPLICATE KEY UPDATE Quantity = Quantity + 1',

@@ -519,9 +519,9 @@ app.post('/buyProducts', (req, res) => {
         let whereClause = ""
         let idx = 0
         for (; idx < req.body.products.length - 1; idx++) {
-            whereClause += 'ASIN = ' + req.body.products[idx].asin + ' OR '
+            whereClause += 'ASIN = \'' + req.body.products[idx].asin + '\' OR '
         }
-        whereClause += 'ASIN = ' + req.body.products[idx].asin
+        whereClause += 'ASIN = \'' + req.body.products[idx].asin + '\''
         let queryStatement = sql.checkProductsExist + whereClause
         connectionPool.query(queryStatement, function (err, result) {
             if (err) {
@@ -561,27 +561,31 @@ app.post('/buyProducts', (req, res) => {
                                 "message": BUY_NO_PRODUCTS
                             });
                         }
-                        let historyArray = []
-                        for (let i = 0; i < req.body.products.length; i++) {
-                            let insertItem = []
-                            insertItem.push(req.session.username)
-                            insertItem.push(req.body.products[i].asin)
-                            insertItem.push(1)
-                            historyArray.push(insertItem)
-                        }
-                        connectionPool.query(sql.insertHistory, [historyArray], function (err, result) {
-                            if (err) {
-                                console.log(err)
-                                console.log("Buy Products]: Insert into history failed.")
-                                return res.json({
-                                    "message": BUY_NO_PRODUCTS
-                                });
-                            }
-                            console.log("[Buy Products]: Buying success. Order number: " + orderId)
+                        // let historyArray = []
+                        // for (let i = 0; i < req.body.products.length; i++) {
+                        //     let insertItem = []
+                        //     insertItem.push(req.session.username)
+                        //     insertItem.push(req.body.products[i].asin)
+                        //     insertItem.push(1)
+                        //     historyArray.push(insertItem)
+                        // }
+                        console.log("[Buy Products]: Buying success. Order number: " + orderId)
                             return res.json({
                                 "message": BUY_SUCCESS
                             });
-                        })
+                        // connectionPool.query(sql.insertHistory, [historyArray], function (err, result) {
+                        //     if (err) {
+                        //         console.log(err)
+                        //         console.log("Buy Products]: Insert into history failed.")
+                        //         return res.json({
+                        //             "message": BUY_NO_PRODUCTS
+                        //         });
+                        //     }
+                        //     console.log("[Buy Products]: Buying success. Order number: " + orderId)
+                        //     return res.json({
+                        //         "message": BUY_SUCCESS
+                        //     });
+                        // })
                     })
                 })
             }
@@ -589,7 +593,7 @@ app.post('/buyProducts', (req, res) => {
     }
 });
 
-app.post('productsPurchased', (req, res) => {
+app.post('/productsPurchased', (req, res) => {
     if (!req.session.login) {
         console.log("[Products Purchased]: User hasn't been logged in");
         return res.json({
