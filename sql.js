@@ -24,7 +24,7 @@ var sql = {
     // orders and receipts
     insertOrders: 'INSERT INTO ' + ORDER_TABLE + ' (Username) VALUES (?)',
     insertReceipts: 'INSERT INTO ' + RECEIPT_TABLE + ' (OrderId, ASIN) VALUES ?',
-    getReceiptsByUsername: 'SELECT Name AS productName, count(*) AS quantity FROM products, orders, receipts WHERE orders.Username = ? AND orders.OrderId = receipts.OrderId AND receipts.ASIN = products.ASIN GROUP BY receipts.ASIN',
+    getProductsPurchasedByUsername: 'SELECT Name AS productName, count(*) AS quantity FROM products, orders, receipts WHERE orders.Username = ? AND orders.OrderId = receipts.OrderId AND receipts.ASIN = products.ASIN GROUP BY receipts.ASIN',
 
     // history
     insertHistory: 'INSERT INTO ' + HISTORY_TABLE + ' (Username, ASIN, Quantity) VALUES (?,?,?) ON DUPLICATE KEY UPDATE Quantity = Quantity + 1',

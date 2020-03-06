@@ -611,7 +611,7 @@ app.post('/productsPurchased', (req, res) => {
             "message": PRODUCTS_PURCHASED_NO_USERS
         })
     } else {
-        connectionPool.query(sql.getReceiptsByUsername, [req.body.username], function(err, result) {
+        connectionPool.query(sql.getProductsPurchasedByUsername, [req.body.username], function(err, result) {
             if (err) {
                 console.log(err)
                 console.log("[Products Purchased]: DB query failed.")
