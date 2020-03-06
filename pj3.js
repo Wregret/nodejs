@@ -519,8 +519,7 @@ app.post('/buyProducts', (req, res) => {
         let whereClause = ""
         let idx = 0
         let pd = req.body.products
-        console.log(pd)
-        console.log(req.body.products)
+        console.log(req.body)
         for (; idx < req.body.products.length - 1; idx++) {
             whereClause += 'ASIN = \'' + req.body.products[idx].asin + '\' OR '
         }
