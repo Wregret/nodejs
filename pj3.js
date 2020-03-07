@@ -3,6 +3,9 @@ const mysql = require('mysql');
 const dbconfig = require('./dbConfig')
 const sql = require('./sql')
 const session = require('express-session')
+const redis = require('redis')
+const redisClient = redis.createClient();
+const redisStore = require('connect-redis')(session);
 const app = express();
 const port = 4000;
 
@@ -47,14 +50,25 @@ const RECOMMENDATION_NOT_LOGIN = "You are not currently logged in"
 var connectionPool = mysql.createPool(dbconfig.mysql_test);
 
 app.use(express.json());
+
+redisClient.on('error', (err) => {
+    console.log('Redis error: ', err);
+});
 app.use(session({
     secret: 'sessionsecret',
+    name: 'ediss_session',
     resave: true,
     saveUninitialized: true,
     rolling: true,
     cookie: {
         maxAge: 900000
-    }
+    },
+    store: new redisStore({
+        host: 'session.7mx8kv.0001.use1.cache.amazonaws.com',
+        port: 6379,
+        client: redisClient,
+        ttl: 900
+    })
 }));
 
 function isEmpty(str) {
