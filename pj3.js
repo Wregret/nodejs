@@ -4,7 +4,7 @@ const dbconfig = require('./dbConfig')
 const sql = require('./sql')
 const session = require('express-session')
 const redis = require('redis')
-const redisClient = redis.createClient();
+const redisClient = redis.createClient(6379, 'session.7mx8kv.0001.use1.cache.amazonaws.com');
 const redisStore = require('connect-redis')(session);
 const app = express();
 const port = 4000;
@@ -54,6 +54,9 @@ app.use(express.json());
 redisClient.on('error', (err) => {
     console.log('Redis error: ', err);
 });
+redisClient.on('connect', () => {
+    console.log('Redis connected');
+})
 app.use(session({
     secret: 'sessionsecret',
     name: 'ediss_session',
