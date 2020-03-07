@@ -26,9 +26,7 @@ var sql = {
     insertReceipts: 'INSERT INTO ' + RECEIPT_TABLE + ' (OrderId, ASIN) VALUES ?',
     getProductsPurchasedByUsername: 'SELECT Name AS productName, count(*) AS quantity FROM products, orders, receipts WHERE orders.Username = ? AND orders.OrderId = receipts.OrderId AND receipts.ASIN = products.ASIN GROUP BY receipts.ASIN',
 
-    // history
-    insertHistory: 'INSERT INTO ' + HISTORY_TABLE + ' (Username, ASIN, Quantity) VALUES (?,?,?) ON DUPLICATE KEY UPDATE Quantity = Quantity + 1',
-    getHistoryByUser: 'SELECT products.Name as productName, history.Quantity as quantity FROM products, history WHERE history.Username = ? AND history.ASIN = products.ASIN'
+    getRecommendation: 'SELECT ASIN AS asin FROM (select ASIN, count(*) FROM receipts WHERE OrderId IN (SELECT OrderId FROM receipts WHERE ASIN = \'?\') AND ASIN != \'?\' GROUP BY ASIN ORDER BY count(*) DESC) AS recommend_list LIMIT 5'
 }
 
 module.exports = sql

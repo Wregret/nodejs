@@ -40,6 +40,9 @@ const PRODUCTS_PURCHASED_SUCCESS = "The action was successful"
 const PRODUCTS_PURCHASED_NO_USERS = "There are no users that match that criteria"
 const PRODUCTS_PURCHASED_NOT_LOGIN = "You are not currently logged in"
 const PRODUCTS_PURCHASED_NOT_ADMIN = "You must be an admin to perform this action"
+const RECOMMENDATION_SUCCESS = "The action was successful"
+const RECOMMENDATION_EMPTY = "There are no recommendations for that product"
+const RECOMMENDATION_NOT_LOGIN = "You are not currently logged in"
 
 var connectionPool = mysql.createPool(dbconfig.mysql_test);
 
@@ -635,6 +638,36 @@ app.post('/productsPurchased', (req, res) => {
     }
 });
 
+app.post('/getRecommendations', (req, res) => {
+    if (req.session.login) {
+        connectionPool.query(sql.getRecommendation, [req.body.asin, req.body.asin], function (err, result) {
+            if (err) {
+                console.log(err)
+                console.log("[Recommendation]: DB query failed")
+                return res.json({
+                    "message": RECOMMENDATION_EMPTY
+                })
+            }
+            if (result.length == 0) {
+                console.log("[Recommendation]: No recommendation found for asin: " + req.body.asin)
+                return res.json({
+                    "message": RECOMMENDATION_EMPTY
+                })
+            } else {
+                console.log("[Recommendation]: Found recommendation for asin: " + req.body.asin)
+                return res.json({
+                    "message": REGISTER_SUCCESS,
+                    "asin": result
+                })
+            }
+        })
+    } else {
+        console.log("[Recommendation]: User hasn't logged in");
+        return res.json({
+            "message": RECOMMENDATION_NOT_LOGIN
+        })
+    }
+});
 
 app.listen(port, function (err) {
     if (err) {
