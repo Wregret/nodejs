@@ -82,6 +82,10 @@ function isEmpty(str) {
     }
 }
 
+app.get('/healthcheck', (req, res) => {
+    res.send("pong!");
+})
+
 app.post('/registerUser', (req, res) => {
     // check same as admin
     if (req.body.username == ADMIN_USERNAME) {
