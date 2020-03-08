@@ -83,7 +83,7 @@ function isEmpty(str) {
 }
 
 app.get('/healthcheck', (req, res) => {
-    console.log("---Health Check---")
+    //console.log("---Health Check---")
     res.send("pong!");
 })
 
