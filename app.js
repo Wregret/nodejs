@@ -4,7 +4,7 @@ const dbconfig = require('./dbConfig')
 const sql = require('./sql')
 const session = require('express-session')
 const redis = require('redis')
-const redisClient = redis.createClient(6379, 'session.7mx8kv.0001.use1.cache.amazonaws.com');
+const redisClient = redis.createClient(6379, 'ediss-cache1b.7mx8kv.0001.use1.cache.amazonaws.com');
 const redisStore = require('connect-redis')(session);
 const app = express();
 const port = 4000;
@@ -67,7 +67,7 @@ app.use(session({
         maxAge: 900000
     },
     store: new redisStore({
-        host: 'session.7mx8kv.0001.use1.cache.amazonaws.com',
+        host: 'ediss-cache1b.7mx8kv.0001.use1.cache.amazonaws.com',
         port: 6379,
         client: redisClient,
         ttl: 900
